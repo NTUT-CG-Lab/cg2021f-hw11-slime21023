@@ -87,20 +87,19 @@ class threejsViewer {
         const texture = new THREE.DataTexture3D(volume.alpha, dims[0], dims[1], dims[2])
         texture.format = THREE.LuminanceFormat
         texture.type = THREE.UnsignedByteType
-        // texture.minFilter = texture.magFilter = THREE.LinearFilter
-        texture.unpackAlignment = 1
+        texture.minFilter = texture.magFilter = THREE.LinearFilter
         texture.needsUpdate = true
 
-        const cmtexture = new THREE.DataTexture(colormap, 256, 1)
+        let cmtexture = new THREE.DataTexture(colormap, 256, 1)
         const shader = VolumeRenderShader1
         let uniforms = THREE.UniformsUtils.clone(shader.uniforms)
         uniforms['u_data'].value = texture
         uniforms['u_size'].value.set(dims[0], dims[1], dims[2])
         uniforms['u_cmdata'].value = cmtexture
+        uniforms['u_cmdata'].value.needUpdate = true
         uniforms['u_renderstyle'].value = arg.renderType
-        uniforms["u_renderthreshold"].value = arg.renderType == 1 ? 0 : 1
-        uniforms['u_sizeEnable'].value = 1
-        uniforms['u_sizeData'].value = null
+        uniforms['u_sizeEnable'].value = 0
+        uniforms["u_renderthreshold"].value = arg.renderType == 1 ? 0.15 : 1
         uniforms['u_clim'].value.set(0, 1)
 
         const geometry = new THREE.BoxGeometry(dims[0], dims[1], dims[2])
@@ -123,18 +122,25 @@ class threejsViewer {
             this.scene.add(mesh)
         }
         else {
-            let uniforms = THREE.UniformsUtils.clone(mesh.material.uniforms)
-            uniforms['u_cmdata'].values = new THREE.DataTexture(colormap, 256, 1)
-            uniforms['u_renderstyle'].value = arg.renderType
-            uniforms["u_renderthreshold"].value = arg.renderType == 1 ? 0 : 1
+            mesh.material.uniforms['u_cmdata'].value.image = { data: colormap, width: 256, height: 1 }
+            mesh.material.uniforms['u_cmdata'].value.needUpdate = true
 
-            mesh.material.uniforms = uniforms
+            mesh.material.uniforms['u_renderstyle'].value = arg.renderType
+            mesh.material.uniforms["u_renderthreshold"].value = arg.renderType == 1 ? 0.15 : 1
         }
 
         if (volume.used) {
-            uniforms = mesh.material.uniforms
+            let uniforms = mesh.material.uniforms
             if (uniforms['u_sizeEnable'] == 0) {
-                let texture = new new THREE.DataTexture3D(volume.alpha, dims[0], dims[1], dims[2])
+                let texture = new new THREE.DataTexture3D(
+                    volume.alpha, dims[0], dims[1], dims[2],
+                    THREE.RGBAFormat
+                )
+
+                texture.format = THREE.LuminanceAlphaFormat
+                texture.type = THREE.UnsignedByteType
+                texture.minFilter = texture.magFilter = THREE.LinearFilter
+
                 uniforms['u_sizeEnable'].value = 1
                 uniforms['u_sizeData'].value = texture
             } else {

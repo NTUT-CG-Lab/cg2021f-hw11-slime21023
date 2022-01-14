@@ -54,17 +54,14 @@ const init = () => {
         }
     })
 
-    let elements = document.getElementsByName('settingForm')
+    arg.renderType = 1
 
-    //MIPS or ISO
-    document.querySelectorAll('input[name=rtype]').forEach((option) => {
-        option.addEventListener('click', () => {
-            arg.renderType = option.value == 'mips' ? 0 : 1
-            controlView.updateRGBA()
+    let elements = document.getElementsByName('settingForm')
+    elements[3].addEventListener('click', () => {
+        field.process(null, () => {
+            modelView.renderVolume(field, getColormap(), arg)
         })
     })
-
-    arg.renderType = 0
 
     // RAW文件讀取
     loadLocalRawFile('./raw/CTchest_64_64_64_uint8.raw', (result) => {
@@ -88,6 +85,7 @@ window.onload = () => {
     //當調色盤的參數變更時，觸發事件
     controlView.addEventListener('change', () => {
         if (!field) return
-        modelView.renderVolume(field, getColormap(), arg)
+        const colormap = getColormap()
+        modelView.renderVolume(field, colormap, arg)
     })
 }
