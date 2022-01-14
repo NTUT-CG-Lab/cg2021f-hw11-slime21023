@@ -71,8 +71,8 @@ const init = () => {
         const bit = 8
 
         const data = new Uint8ClampedArray(result)
-
-        field = new ScaleField(width, height, depth, data, arg)
+        // console.log(arg)
+        field = new ScaleField(width, height, depth, data, arg.rgba)
 
         controlView.updateVolumeData(field)
     })

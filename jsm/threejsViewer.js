@@ -101,6 +101,7 @@ class threejsViewer {
         uniforms['u_sizeEnable'].value = 0
         uniforms["u_renderthreshold"].value = arg.renderType == 1 ? 0.15 : 1
         uniforms['u_clim'].value.set(0, 1)
+        uniforms['u_sizeData'].value = {}
 
         const geometry = new THREE.BoxGeometry(dims[0], dims[1], dims[2])
         geometry.translate(dims[0] / 2 - 0.5, dims[1] / 2 - 0.5, dims[2] / 2 - 0.5)
@@ -123,7 +124,7 @@ class threejsViewer {
         }
         else {
             mesh.material.uniforms['u_cmdata'].value.image = { data: colormap, width: 256, height: 1 }
-            mesh.material.uniforms['u_cmdata'].value.needUpdate = true
+            mesh.material.uniforms['u_cmdata'].value.needsUpdate = true
 
             mesh.material.uniforms['u_renderstyle'].value = arg.renderType
             mesh.material.uniforms["u_renderthreshold"].value = arg.renderType == 1 ? 0.15 : 1
@@ -143,9 +144,11 @@ class threejsViewer {
 
                 uniforms['u_sizeEnable'].value = 1
                 uniforms['u_sizeData'].value = texture
-            } else {
+            } 
+            else {
                 uniforms['u_sizeData'].value.image = { data: volume.sizeData }
-                uniforms['u_sizeData'].value.needUpdate = true
+                uniforms['u_sizeData'].value.needsUpdate = true
+                console.log("size based")
             }
         }
 
